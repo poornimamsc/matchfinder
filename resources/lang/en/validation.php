@@ -131,6 +131,11 @@ return [
         'otp' => [
             'otp' => 'Invalid OTP',
         ],
+        'mobile_number'=>[
+            "otp_mobile"=>"Invalid OTP mobile number",
+            "required"=>"Mobile Number is Mandatory"
+
+        ]
     ],
 
     /*
