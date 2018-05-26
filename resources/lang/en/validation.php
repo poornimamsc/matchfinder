@@ -130,6 +130,7 @@ return [
         ],
         'otp' => [
             'otp' => 'Invalid OTP',
+            "otp_mobile"=>"Invalid OTP mobile number"
         ],
         'mobile_number'=>[
             "otp_mobile"=>"Invalid OTP mobile number",

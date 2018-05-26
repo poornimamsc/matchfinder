@@ -16,8 +16,7 @@ Route::get('/', function () {
 });
 
 Route::group(['prefix' => 'user/'], function () {
-
-	Route::get('/getMessage', [
+    Route::get('/getMessage', [
         'as' => 'user.doMessage',
         'uses' => 'UserController@getMessage'
     ]);
@@ -26,23 +25,42 @@ Route::group(['prefix' => 'user/'], function () {
         'as' => 'user.doMessage',
         'uses' => 'UserController@getMessage'
     ]);
-
-	Route::post('/getMessage', [
-        'as' => 'user.getMessage',
-        'uses' => 'UserController@getMessage'
+    
+    Route::get('/get-reset-otp', [
+        'as' => 'user.getResetOtp',
+        'uses' => 'UserController@resetOtp'
     ]);
+    
+    Route::post('/reset-password', [
+        'as' => 'user.resetPassword',
+        'uses' => 'UserController@resetPassword'
+    ]);
+    
 
-	Route::get('/showMessage', [
+    Route::get('/showMessage', [
         'as' => 'user.showMessage',
         'uses' => 'UserController@showMessage'
     ]);
 
-	Route::post('/create', [
+    Route::post('/create', [
         'as' => 'user.create',
         'uses' => 'UserController@create'
-    ]);       
-	Route::post('/login', [
+    ]);
+
+    Route::post('/login', [
         'as' => 'user.login',
         'uses' => 'UserController@login'
-    ]);       
+    ]);
+
+    Route::get('/logout', [
+        'as' => 'user.logout',
+        'uses' => 'UserController@logout'
+    ]);
+});
+
+Route::group(['prefix' => 'profile/', 'middleware' => 'checkSession'], function () {
+    Route::get('/me', [
+        'as' => 'profile.me',
+        'uses' => 'ProfileController@me'
+    ]);
 });

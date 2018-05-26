@@ -16,16 +16,16 @@ class UserController extends BaseController
 {
     public function getMessage(OtpRequest $request)
     {
-        $code = str_random(5);
-        session(['otp' => $code]);
-        $response = array("data"=>"Data Sent".$code,"status"=>1);
-        return $response;
+        $inputData = $request->all();
+        $this->doOtp($inputData);
+        $response = array("data"=>"Data Sent","status"=>1);
+        return response()->json($response, 200, [], JSON_PRETTY_PRINT);
     }
 
     public function showMessage(Request $request)
     {
-        $response = array("data"=>session('otp'),"status"=>1);
-        return $response;
+        $response = array("data"=>session('otp'),"status"=>1,"number"=>session('mobile_number'));
+        return response()->json($response, 200, [], JSON_PRETTY_PRINT);
     }
 
 
@@ -38,14 +38,14 @@ class UserController extends BaseController
                 'status' => 1,
                 'data' => "Success"
             ];
-
+            $this->forgetOtp($request);
             return response()->json($response, 200, [], JSON_PRETTY_PRINT);
         } catch (\Exception $e) {
             $response = [
                 'status' => 0,
                 'data' => "Error While Saving....",
             ];
-
+            \Log::debug('Create User Error.'.$e->getMessage());
             return response()->json($response, 500, [], JSON_PRETTY_PRINT);
         }
     }
@@ -83,14 +83,11 @@ class UserController extends BaseController
     {
         $inputData = $request->all();
         $response = array("data"=>"Mobile number not found","status"=>0);
-        try {
-            $res = $userRepo->checkMobileNumber($inputData);
-            $code = str_random(5);
-            session(['otp' => $code]);
-            session(['mobile_number' => $inputData['mobile_number']]);
-            
+        $res = $userRepo->checkMobileNumber($inputData);
+        
+        if ($res) {
+            $this->doOtp($inputData);
             $response = array("data"=>"OTP Sent","status"=>1);
-        } catch (\Exception $e) {
         }
         
         
@@ -101,5 +98,30 @@ class UserController extends BaseController
     public function resetPassword(UpdatePasswordRequest $request, UserRepositorie $userRepo)
     {
         $inputData = $request->all();
+        $this->forgetOtp($request);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->session()->flush();
+        $response = [
+                'status' => 1,
+                'data' => "Sucessfully logged out",
+        ];
+        return response()->json($response, 200, [], JSON_PRETTY_PRINT);
+    }
+
+    
+    private function doOtp($inputData)
+    {
+        $code = str_random(5);
+        session(['otp' => $code]);
+        session(['mobile_number' => $inputData['mobile_number']]);
+    }
+
+    private function forgetOtp($request)
+    {
+        $request->session()->forget('mobile_number');
+        $request->session()->forget('otp');
     }
 }

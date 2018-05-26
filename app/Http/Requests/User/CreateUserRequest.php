@@ -23,15 +23,13 @@ class CreateUserRequest extends FormRequest
      */
     public function rules()
     {
-
-        return [            
+        return [
             'otp'      => 'required|otp',
             'username'      => 'required',
             'email' => 'required|unique:users,email',
-            'mobile_number'      => 'required|unique:users,mobile_number',            
-            'password'      => 'required'            
+            'mobile_number'      => 'required|otp_mobile|unique:users,mobile_number',
+            'password'      => 'required'
 
         ];
     }
-
 }

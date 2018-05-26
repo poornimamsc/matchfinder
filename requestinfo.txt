@@ -1,0 +1,58 @@
+Login
+=================
+curl --request POST \
+  --url http://learnlara.com/user/login \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"email":"aws@abcd.com","password":"asdfg"}'
+
+
+Logout
+================
+curl --request GET \
+  --url http://learnlara.com/user/logout
+
+
+CreateUser
+================
+curl --request POST \
+  --url http://learnlara.com/user/create \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":266666,"email":"aws@abcd.com","password":"asdfg","username":"devdev","otp":"dhLkl"}'
+
+
+ Generate OTP
+ =============
+ curl --request GET \
+  --url http://learnlara.com/user/getOtp \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":266666}'
+
+
+ Show OTP
+ ============
+ curl --request GET \
+  --url http://learnlara.com/user/showMessage \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest'
+
+
+Generate OTP for password reset
+=================================
+curl --request GET \
+  --url http://learnlara.com/user/get-reset-otp \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":666666}'
+
+
+Password Reset
+=========================
+curl --request POST \
+  --url http://learnlara.com/user/reset-password \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":666666,"otp":"nEAlP","password":"sdfsdfsdf"}'  
+  

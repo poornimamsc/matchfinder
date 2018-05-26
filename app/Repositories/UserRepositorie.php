@@ -47,7 +47,7 @@ class UserRepositorie
 
     public function checkMobileNumber($inputData)
     {
-        $model=User::where('mobile_number', $inputData['mobile_number'])->findOrFail(1);
+        $model=User::where('mobile_number', $inputData['mobile_number'])->exists();
         return $model;
     }
 }
