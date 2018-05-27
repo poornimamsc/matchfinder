@@ -136,7 +136,12 @@ return [
             "otp_mobile"=>"Invalid OTP mobile number",
             "required"=>"Mobile Number is Mandatory"
 
-        ]
+        ],
+        'captcha'=>[
+            "captcha"=>"Invalid Captcha",
+            "required"=>"Please enter captcha"
+
+        ],
     ],
 
     /*

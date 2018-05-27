@@ -23,10 +23,9 @@ class OtpRequest extends FormRequest
      */
     public function rules()
     {
-
         return [
-            'mobile_number'      => 'required'
+            'mobile_number'      => 'required',
+            'captcha'      => 'required|captcha'
         ];
     }
-
 }

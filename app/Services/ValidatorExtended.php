@@ -22,6 +22,13 @@ class ValidatorExtended extends Validator
         );
     }
 
+
+
+    protected function validateCaptcha($attribute, $value)
+    {
+        return session('captcha')==$value;
+    }
+
     protected function validateOtp($attribute, $value)
     {
         return session('otp')==$value;
