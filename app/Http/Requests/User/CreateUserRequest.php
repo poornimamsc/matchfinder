@@ -22,12 +22,12 @@ class CreateUserRequest extends FormRequest
      * @return array
      */
     public function rules()
-    {
+    {   //otp_mobile|
         return [
-            'otp'      => 'required|otp',
+            'captcha'      => 'required|captcha',
             'username'      => 'required',
             'email' => 'required|unique:users,email',
-            'mobile_number'      => 'required|otp_mobile|unique:users,mobile_number',
+            'mobile_number'      => 'required|unique:users,mobile_number',
             'password'      => 'required'
 
         ];

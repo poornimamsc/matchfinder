@@ -8,23 +8,52 @@ use App\Http\Requests\User\OtpRequest;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\UpdatePasswordRequest;
+use App\Http\Requests\User\VerifyOtpRequest;
 
 
 use App\Repositories\UserRepositorie;
 
 class UserController extends BaseController
 {
-    public function getMessage(OtpRequest $request)
+    public function getCaptcha(Request $request)
     {
-        $inputData = $request->all();
-        $this->doOtp($inputData);
-        $response = array("data"=>"Data Sent","status"=>1);
+        $request->session()->flush();
+        session(['captcha' => "3TCJ"]);
+        $response = [
+                'status' => 1,
+                'captcha_url'=>"https://captcha.com/images/captcha/180/botdetect-captcha-paintmess.jpg",
+                'data' => "Captcha Url",
+        ];
         return response()->json($response, 200, [], JSON_PRETTY_PRINT);
     }
 
+    public function sendOtp(OtpRequest $request, UserRepositorie $userRepo)
+    {
+        $request->session()->forget('captcha');
+        
+        $inputData = $request->all();
+        if ($userRepo->checkMobileNumber($inputData['mobile_number'])) {
+            $this->doOtp($inputData);
+            $statusCode = 200;
+            $response = array("data"=>"Data Sent","status"=>1);
+        } else {
+            $statusCode = 422;
+            $response = array("data"=>"Mobile Number not exists","status"=>0);
+        }
+        
+        
+        return response()->json($response, $statusCode, [], JSON_PRETTY_PRINT);
+    }
+
+    
     public function showMessage(Request $request)
     {
-        $response = array("data"=>session('otp'),"status"=>1,"number"=>session('mobile_number'));
+        $response = array(
+            "otp"=>session('otp'),
+            "status"=>1,
+            "number"=>session('mobile_number'),
+            "captcha"=>session('captcha')
+        );
         return response()->json($response, 200, [], JSON_PRETTY_PRINT);
     }
 
@@ -38,67 +67,92 @@ class UserController extends BaseController
                 'status' => 1,
                 'data' => "Success"
             ];
-            $this->forgetOtp($request);
+            $request->session()->forget('captcha');
+            $this->doOtp($inputData);
             return response()->json($response, 200, [], JSON_PRETTY_PRINT);
         } catch (\Exception $e) {
             $response = [
                 'status' => 0,
-                'data' => "Error While Saving....",
+                'data' => "Error While Saving. Contact Customer Care!",
             ];
             \Log::debug('Create User Error.'.$e->getMessage());
             return response()->json($response, 500, [], JSON_PRETTY_PRINT);
         }
     }
 
-    public function login(LoginRequest $request, UserRepositorie $userRepo)
+
+    public function userVerifcation(VerifyOtpRequest $request, UserRepositorie $userRepo)
     {
-        $inputData = $request->all();
+        $mobileNumber = session('mobile_number');
+        $this->forgetKeys($request);
         try {
-            $res = $userRepo->getUser($inputData);
-            
-            if ($res) {
-                $response = [
+            $userRepo->activateUser($mobileNumber);
+            $response = [
                 'status' => 1,
-                'data' => "Success"
+                'data' => "Activated Successfully."
                 ];
-            } else {
-                $response = [
-                'status' => 0,
-                'data' => "Invlaid Login Details ..."
-                ];
-            }
-            
             return response()->json($response, 200, [], JSON_PRETTY_PRINT);
         } catch (\Exception $e) {
             $response = [
                 'status' => 0,
-                'data' => "Invlaid Login Details....",
+                'data' => "System Error. Contact Customer Care!",
             ];
+
+            \Log::debug('Login Error.'.$e->getMessage());
 
             return response()->json($response, 500, [], JSON_PRETTY_PRINT);
         }
     }
 
-    public function resetOtp(OtpRequest $request, UserRepositorie $userRepo)
+
+    public function login(LoginRequest $request, UserRepositorie $userRepo)
     {
         $inputData = $request->all();
-        $response = array("data"=>"Mobile number not found","status"=>0);
-        $res = $userRepo->checkMobileNumber($inputData);
-        
-        if ($res) {
-            $this->doOtp($inputData);
-            $response = array("data"=>"OTP Sent","status"=>1);
+        try {
+            $res = $userRepo->getUser($inputData);
+            $response = [
+                'status' => $res['status'],
+                'data' => $res['message'],
+            ];
+                
+            return response()->json($response, $res['statusCode'], [], JSON_PRETTY_PRINT);
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 0,
+                'data' => "System Error. Contact Customer Care!",
+            ];
+
+            \Log::debug('Login Error.'.$e->getMessage());
+
+            return response()->json($response, 500, [], JSON_PRETTY_PRINT);
         }
-        
-        
-        
-        return response()->json($response, 200, [], JSON_PRETTY_PRINT);
     }
+
+
+ 
 
     public function resetPassword(UpdatePasswordRequest $request, UserRepositorie $userRepo)
     {
         $inputData = $request->all();
-        $this->forgetOtp($request);
+        $mobileNumber = session('mobile_number');
+        $this->forgetKeys($request);
+        try {
+            $userRepo->resetPassword($mobileNumber, $inputData['password']);
+            $response = [
+                'status' => 1,
+                'data' => "Password Updated Successfully."
+                ];
+            return response()->json($response, 200, [], JSON_PRETTY_PRINT);
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 0,
+                'data' => "Password  Update Error. Contact Customer Care!",
+            ];
+
+            \Log::debug('Password Update Error.'.$e->getMessage());
+
+            return response()->json($response, 500, [], JSON_PRETTY_PRINT);
+        }
     }
 
     public function logout(Request $request)
@@ -112,6 +166,7 @@ class UserController extends BaseController
     }
 
     
+    
     private function doOtp($inputData)
     {
         $code = str_random(5);
@@ -119,9 +174,29 @@ class UserController extends BaseController
         session(['mobile_number' => $inputData['mobile_number']]);
     }
 
-    private function forgetOtp($request)
+    private function forgetKeys($request)
     {
         $request->session()->forget('mobile_number');
         $request->session()->forget('otp');
+        $request->session()->forget('captcha');
     }
+
+       
+    /*
+    public function resetOtp(OtpRequest $request)
+    {
+        $inputData = $request->all();
+        $response = array("data"=>"Mobile number not found","status"=>0);
+        $res = $userRepo->checkMobileNumber($inputData['mobile_number']);
+
+
+        if ($res) {
+            $this->doOtp($inputData);
+            $response = array("data"=>"OTP Sent","status"=>1);
+        }
+
+
+
+        return response()->json($response, 200, [], JSON_PRETTY_PRINT);
+    }*/
 }

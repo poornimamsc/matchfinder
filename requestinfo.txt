@@ -1,10 +1,53 @@
+Get Captcha
+===============
+curl --request GET \
+  --url http://learnlara.com/user/get-captcha
+
+
+Create User
+=================
+curl --request POST \
+  --url http://learnlara.com/user/create \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":19898,"email":"dev31@dev.com","password":"password","username":"devdev","captcha":"3TCJ"}'
+
+
+ Verify User and Activate
+ =========================
+ curl --request POST \
+  --url http://learnlara.com/user/verify-user \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"otp":"QlxkG"}'
+
+
+
+Get OTP
+===============
+curl --request GET \
+  --url http://learnlara.com/user/getOtp \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":19898,"captcha":"3TCJ"}'
+
+
+Reset Password
+=================
+curl --request POST \
+  --url http://learnlara.com/user/reset-password \
+  --header 'content-type: application/json' \
+  --header 'x-requested-with: XMLHttpRequest' \
+  --data '{"mobile_number":12131235,"otp":"fN2dv","password":"welcome"}'
+
+
 Login
 =================
 curl --request POST \
   --url http://learnlara.com/user/login \
   --header 'content-type: application/json' \
   --header 'x-requested-with: XMLHttpRequest' \
-  --data '{"email":"aws@abcd.com","password":"asdfg"}'
+  --data '{"email":"dev2@dev.com","password":"password"}'
 
 
 Logout
@@ -13,46 +56,57 @@ curl --request GET \
   --url http://learnlara.com/user/logout
 
 
-CreateUser
-================
-curl --request POST \
-  --url http://learnlara.com/user/create \
-  --header 'content-type: application/json' \
-  --header 'x-requested-with: XMLHttpRequest' \
-  --data '{"mobile_number":266666,"email":"aws@abcd.com","password":"asdfg","username":"devdev","otp":"dhLkl"}'
 
-
- Generate OTP
- =============
- curl --request GET \
-  --url http://learnlara.com/user/getOtp \
-  --header 'content-type: application/json' \
-  --header 'x-requested-with: XMLHttpRequest' \
-  --data '{"mobile_number":266666}'
-
-
- Show OTP
- ============
+Show OTP
+============
  curl --request GET \
   --url http://learnlara.com/user/showMessage \
   --header 'content-type: application/json' \
   --header 'x-requested-with: XMLHttpRequest'
 
 
-Generate OTP for password reset
-=================================
-curl --request GET \
-  --url http://learnlara.com/user/get-reset-otp \
-  --header 'content-type: application/json' \
-  --header 'x-requested-with: XMLHttpRequest' \
-  --data '{"mobile_number":666666}'
+
+Create User Steps:
+----------------
+Step1:
+1.Get Captch Code [url : /user/get-captcha]
+2.Use the Captcha used and call urll :/user/create with require fields
+
+step1 will create the user and user status will be in active.
+
+Step2:
+on successfull creation call the show the OTP page
+once user entered the otp 
+submit the data to url: user/verify-user
+
+step2 will activate the user.
 
 
-Password Reset
-=========================
-curl --request POST \
-  --url http://learnlara.com/user/reset-password \
-  --header 'content-type: application/json' \
-  --header 'x-requested-with: XMLHttpRequest' \
-  --data '{"mobile_number":666666,"otp":"nEAlP","password":"sdfsdfsdf"}'  
-  
+Incase User is created and verify OTP Process not taken by user , then user will be created and not activated.
+
+
+
+
+Verify User Steps:
+-----------------
+1.Get Captch Code [url : /user/get-captcha]
+2.Call user/getOtp  with captcha details entered by the user
+3.Call the url: user/verify-user with the mobile number entered by the user
+
+
+Reset Password Steps:
+---------------------
+1.Get Captch Code [url : /user/get-captcha]
+2.Call user/getOtp  with captcha details,mobile number entered by the user
+3.Call the Reset OTP url [user/reset-password] with otp and password details
+
+
+
+Login Steps:
+------------
+1.Make call to Url:[user/login] with user name and Password
+2.Response :
+    2.1.If success status will be 1 [Then user will be redirected to welcome page]
+    2.2.If user is not yet activated  status will be 0[ In the same page Activation link will be shown ]
+    2.3.If user is locked then status will be 2.[No further action ]
+    

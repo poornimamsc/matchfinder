@@ -23,7 +23,7 @@ Route::group(['prefix' => 'user/'], function () {
     
     Route::get('/getOtp', [
         'as' => 'user.doMessage',
-        'uses' => 'UserController@getMessage'
+        'uses' => 'UserController@sendOtp'
     ]);
     
     Route::get('/get-reset-otp', [
@@ -47,6 +47,11 @@ Route::group(['prefix' => 'user/'], function () {
         'uses' => 'UserController@create'
     ]);
 
+    Route::post('/verify-user', [
+        'as' => 'user.verifyUser',
+        'uses' => 'UserController@userVerifcation'
+    ]);
+
     Route::post('/login', [
         'as' => 'user.login',
         'uses' => 'UserController@login'
@@ -56,6 +61,11 @@ Route::group(['prefix' => 'user/'], function () {
         'as' => 'user.logout',
         'uses' => 'UserController@logout'
     ]);
+
+    Route::get('/get-captcha', [
+        'as' => 'user.getCaptcha',
+        'uses' => 'UserController@getCaptcha'
+    ]);
 });
 
 Route::group(['prefix' => 'profile/', 'middleware' => 'checkSession'], function () {
@@ -63,4 +73,11 @@ Route::group(['prefix' => 'profile/', 'middleware' => 'checkSession'], function 
         'as' => 'profile.me',
         'uses' => 'ProfileController@me'
     ]);
+
+    Route::group(['prefix' => 'modify/'], function () {
+        Route::get('/personal', [
+        'as' => 'profile.me',
+        'uses' => 'ProfileController@me'
+        ]);
+    });
 });
