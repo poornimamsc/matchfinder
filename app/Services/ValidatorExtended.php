@@ -24,7 +24,7 @@ class ValidatorExtended extends Validator
 
 
 
-    protected function validateCaptcha($attribute, $value)
+    protected function validateCapptcha($attribute, $value)
     {
         return session('captcha')==$value;
     }

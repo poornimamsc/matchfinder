@@ -21,7 +21,7 @@ class UserController extends BaseController
         session(['captcha' => "3TCJ"]);
         $response = [
                 'status' => 1,
-                'captcha_url'=>"https://captcha.com/images/captcha/180/botdetect-captcha-paintmess.jpg",
+                'captcha_url'=>captcha_src("flat"),
                 'data' => "Captcha Url",
         ];
         return response()->json($response, 200, [], JSON_PRETTY_PRINT);
